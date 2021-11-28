@@ -1,21 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Example.cshtml" />
-  </ItemGroup>
+    <ItemGroup>
+        <!-- Force Visual Studio to rebuild (and generate code) if any cshtml file changes -->
+        <UpToDateCheckInput Include="**/*.cshtml"></UpToDateCheckInput>
+    </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="Example.cshtml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="RazorEngineCore" Version="2021.7.1" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="RazorEngineCore" Version="2021.7.1" />
+        <PackageReference Include="Templates.MSBuild" Version="1.0.0" />
+    </ItemGroup>
 
 </Project>
