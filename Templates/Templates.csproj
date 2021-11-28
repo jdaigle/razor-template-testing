@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Example.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Example.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RazorEngineCore" Version="2021.7.1" />
+  </ItemGroup>
+
+</Project>
