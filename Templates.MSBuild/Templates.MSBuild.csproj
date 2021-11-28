@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net48</TargetFramework>
-    <IsTool >true</IsTool>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <DevelopmentDependency>true</DevelopmentDependency>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
     </PropertyGroup>
 
     <ItemGroup>
@@ -11,8 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Build.Framework" Version="17.0.0" PrivateAssets="All" />
-        <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.0.0" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.Build.Tasks.Core" Version="17.0.0" PrivateAssets="All" />
     </ItemGroup>
 
 

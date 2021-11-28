@@ -1,8 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <RazorGeneratorMsBuildPath>$(MSBuildThisFileDirectory)\..\Templates.MSBuild\bin\Debug\netstandard2.0\Templates.MSBuild.dll</RazorGeneratorMsBuildPath>
     </PropertyGroup>
+
+    <Target Name="DeleteCodeGen" BeforeTargets="BeforeClean">
+        <RemoveDir Directories="$(MsBuildProjectDirectory)\obj\CodeGen\" />
+    </Target>
 
     <ItemGroup>
         <!-- Force Visual Studio to rebuild (and generate code) if any cshtml file changes -->
@@ -11,7 +16,13 @@
 
     <ItemGroup>
         <PackageReference Include="RazorEngineCore" Version="2021.7.1" />
-        <PackageReference Include="Templates.MSBuild" Version="1.0.0" />
+        <!--<PackageReference Include="Templates.MSBuild" Version="1.0.0" />-->
     </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Templates.MSBuild\Templates.MSBuild.csproj" />
+    </ItemGroup>
+
+    <Import Project="..\Templates.MSBuild\Templates.MSBuild.targets" />
 
 </Project>

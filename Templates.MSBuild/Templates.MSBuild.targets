@@ -7,10 +7,10 @@
         <RazorGeneratorMsBuildPath Condition=" '$(RazorGeneratorMsBuildPath)' == '' ">$(MSBuildThisFileDirectory)\..\tools\Templates.MSBuild.dll</RazorGeneratorMsBuildPath>
         <RazorViewsCodeGenDirectory Condition=" '$(RazorViewsCodeGenDirectory)' == '' ">$(MsBuildProjectDirectory)\obj\CodeGen\</RazorViewsCodeGenDirectory>
 
-        <CompileDependsOn Condition=" '$(PrecompileRazorFiles)' == 'true' ">
+        <!--<CompileDependsOn Condition=" '$(PrecompileRazorFiles)' == 'true' ">
             PrecompileRazorFiles;
             $(CompileDependsOn);
-        </CompileDependsOn>
+        </CompileDependsOn>-->
     </PropertyGroup>
 
     <Target Name="_ResolveRazorFiles">
@@ -31,6 +31,7 @@
     <UsingTask AssemblyFile="$(RazorGeneratorMsBuildPath)" TaskName="RazorCodeGen" />
     <Target
         Name="PrecompileRazorFiles"
+        BeforeTargets="BeforeBuild"
         DependsOnTargets="_ResolveRazorFiles"
         Inputs="@(RazorSrcFiles)"
         Outputs="@(RazorOutputFiles)">
