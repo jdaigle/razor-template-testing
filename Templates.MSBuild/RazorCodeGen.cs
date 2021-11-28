@@ -61,14 +61,14 @@ namespace Templates.MSBuild
                     //CodeLanguageUtil langutil = CodeLanguageUtil.GetLanguageUtilFromFileName(fileName);
 
                     var outputPath = Path.Combine(CodeGenDirectory, projectRelativePath.TrimStart(Path.DirectorySeparatorChar)) + ".cs";
-                    if (!RequiresRecompilation(filePath, outputPath))
-                    {
-                        Log.LogMessage(MessageImportance.Low, "Skipping file {0} since {1} is already up to date", filePath, outputPath);
-                        continue;
-                    }
+                    //if (!RequiresRecompilation(filePath, outputPath))
+                    //{
+                    //    Log.LogMessage(MessageImportance.Low, "Skipping file {0} since {1} is already up to date", filePath, outputPath);
+                    //    continue;
+                    //}
                     EnsureDirectory(outputPath);
 
-                    Log.LogMessage(MessageImportance.Low, "Precompiling {0} at path {1}", filePath, outputPath);
+                    Log.LogMessage(MessageImportance.Normal, "Precompiling {0} at path {1}", filePath, outputPath);
                     //var host = hostManager.CreateHost(filePath, projectRelativePath, itemNamespace);
 
                     bool hasErrors = false;

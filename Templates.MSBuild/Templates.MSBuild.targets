@@ -1,36 +1,30 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <ItemGroup>
-        <AvailableItemName Include="RazorSrcFiles" />
-    </ItemGroup>
     <PropertyGroup>
-        <PrecompileRazorFiles Condition=" '$(PrecompileRazorFiles)' == '' ">true</PrecompileRazorFiles>
-        <RazorGeneratorMsBuildPath Condition=" '$(RazorGeneratorMsBuildPath)' == '' ">$(MSBuildThisFileDirectory)\..\tools\Templates.MSBuild.dll</RazorGeneratorMsBuildPath>
-        <RazorViewsCodeGenDirectory Condition=" '$(RazorViewsCodeGenDirectory)' == '' ">$(MsBuildProjectDirectory)\obj\CodeGen\</RazorViewsCodeGenDirectory>
+        <!--<PrecompileRazorFiles Condition=" '$(PrecompileRazorFiles)' == '' ">true</PrecompileRazorFiles>-->
+        <RazorCodeGeneratorMSBuildPath Condition=" '$(RazorCodeGeneratorMSBuildPath)' == '' ">$(MSBuildThisFileDirectory)\..\tools\Templates.MSBuild.dll</RazorCodeGeneratorMSBuildPath>
+        <RazorCodeGeneratorCodeGenDirectory Condition=" '$(RazorCodeGeneratorCodeGenDirectory)' == '' ">$(BaseIntermediateOutputPath)\CodeGen\</RazorCodeGeneratorCodeGenDirectory>
 
         <!--<CompileDependsOn Condition=" '$(PrecompileRazorFiles)' == 'true' ">
-            PrecompileRazorFiles;
+            GenerateRazorCode;
             $(CompileDependsOn);
         </CompileDependsOn>-->
+        <CoreCompileDependsOn>GenerateRazorCode;$(CoreCompileDependsOn)</CoreCompileDependsOn>
     </PropertyGroup>
 
     <Target Name="_ResolveRazorFiles">
         <ItemGroup>
-            <RazorSrcFiles Condition=" '@(RazorSrcFiles)' == '' and '%(Extension)' == '.cshtml' " Include="@(Content);@(None)" />
             <RazorSrcFiles Condition=" '@(RazorSrcFiles)' == '' " Include="**\*.cshtml" />
+            <RazorOutputFiles Include="@(RazorSrcFiles -> '$(RazorCodeGeneratorCodeGenDirectory)%(RelativeDir)%(Filename)%(Extension).cs')" />
         </ItemGroup>
         <ItemGroup>
-            <RazorCsSrcFiles Condition=" '@(RazorCsSrcFiles)' == '' and '%(Extension)' == '.cshtml' " Include="@(RazorSrcFiles)" />
-            <RazorCsOutputFiles Include="@(RazorCsSrcFiles -> '$(RazorViewsCodeGenDirectory)%(RelativeDir)%(Filename)%(Extension).cs')" />
-        </ItemGroup>
-        <ItemGroup>
-            <RazorSrcFiles Include="@(RazorCsSrcFiles)" />
-            <RazorOutputFiles Include="@(RazorCsOutputFiles)" />
+            <Compile Include="@(RazorOutputFiles)" />
         </ItemGroup>
     </Target>
 
-    <UsingTask AssemblyFile="$(RazorGeneratorMsBuildPath)" TaskName="RazorCodeGen" />
+    <UsingTask TaskName="RazorCodeGen" AssemblyFile="$(RazorCodeGeneratorMSBuildPath)" />
+
     <Target
-        Name="PrecompileRazorFiles"
+        Name="GenerateRazorCode"
         BeforeTargets="BeforeBuild"
         DependsOnTargets="_ResolveRazorFiles"
         Inputs="@(RazorSrcFiles)"
@@ -38,13 +32,8 @@
         <RazorCodeGen
             ProjectRoot="$(MsBuildProjectDirectory)"
             FilesToPrecompile="@(RazorSrcFiles)"
-            CodeGenDirectory="$(RazorViewsCodeGenDirectory)"
+            CodeGenDirectory="$(RazorCodeGeneratorCodeGenDirectory)"
             RootNamespace="$(RootNamespace)">
-            <Output TaskParameter="GeneratedFiles" ItemName="FilesGenerated" />
         </RazorCodeGen>
-        <ItemGroup>
-            <Compile Include="@(FilesGenerated)" Condition=" '@(RazorOutputFiles)' == '' "/>
-            <Compile Include="@(RazorOutputFiles)" />
-        </ItemGroup>
     </Target>
 </Project>

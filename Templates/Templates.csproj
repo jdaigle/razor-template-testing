@@ -2,11 +2,11 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <RazorGeneratorMsBuildPath>$(MSBuildThisFileDirectory)\..\Templates.MSBuild\bin\Debug\netstandard2.0\Templates.MSBuild.dll</RazorGeneratorMsBuildPath>
+        <RazorCodeGeneratorMSBuildPath>$(MSBuildThisFileDirectory)\..\Templates.MSBuild\bin\Debug\netstandard2.0\Templates.MSBuild.dll</RazorCodeGeneratorMSBuildPath>
     </PropertyGroup>
 
     <Target Name="DeleteCodeGen" BeforeTargets="BeforeClean">
-        <RemoveDir Directories="$(MsBuildProjectDirectory)\obj\CodeGen\" />
+        <RemoveDir Directories="$(BaseIntermediateOutputPath)\CodeGen\" />
     </Target>
 
     <ItemGroup>
