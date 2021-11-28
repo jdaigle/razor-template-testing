@@ -15,6 +15,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <UpToDateCheckInput Remove="AnotherExample.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="RazorEngineCore" Version="2021.7.1" />
         <!--<PackageReference Include="Templates.MSBuild" Version="1.0.0" />-->
     </ItemGroup>

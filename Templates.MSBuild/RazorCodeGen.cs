@@ -56,6 +56,7 @@ namespace Templates.MSBuild
                 {
                     var filePath = file.GetMetadata("FullPath");
                     var fileName = Path.GetFileName(filePath);
+                    var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(filePath);
                     var projectRelativePath = GetProjectRelativePath(filePath, projectRoot);
                     var itemNamespace = GetNamespace(/*file, */projectRelativePath);
 
@@ -99,22 +100,35 @@ namespace Templates.MSBuild
                                 //    }));
                                 //    n.BaseType = "RazorEngineCore.RazorEngineTemplateBase";
                                 //});
-                                builder.SetBaseType("RazorEngineCore.RazorEngineTemplateBase");
+                                builder.ConfigureClass((c, node) =>
+                                {
+                                    node.ClassName = fileNameWithoutExtension;
+                                });
                                 builder.SetNamespace("TemplateNamespace");
                                 builder.Features.Add(new SuppressChecksumOptionsFeature());
                             });
 
                         // TODO: when reading the file, need to change "stringBuilder.AppendLine($"@inherits {options.Inherits}");" at the top, otherwise the type is wrong?
+                        //RazorSourceDocument document = RazorSourceDocument.Create(File.ReadAllText(filePath), filePath);
+                        //RazorCodeDocument codeDocument2 = _projectEngine.Process(
+                        //    document,
+                        //    "mvc",
+                        //    null,
+                        //    null);
+                        //var cSharpDocument2 = codeDocument2.GetCSharpDocument();
+
                         RazorSourceDocument document = RazorSourceDocument.Create(File.ReadAllText(filePath), filePath);
-                        RazorCodeDocument codeDocument2 = _projectEngine.Process(
+
+                        RazorCodeDocument codeDocument = _projectEngine.Process(
                             document,
-                            "mvc",
                             null,
-                            null);
-                        var cSharpDocument2 = codeDocument2.GetCSharpDocument();
+                            new List<RazorSourceDocument>(),
+                            new List<TagHelperDescriptor>());
+
+                        RazorCSharpDocument razorCSharpDocument = codeDocument.GetCSharpDocument();
 
                         //var result = host.GenerateCode();
-                        var result = cSharpDocument2.GeneratedCode;
+                        var result = razorCSharpDocument.GeneratedCode;
                         if (!hasErrors)
                         {
                             // If we had errors when generating the output, don't write the file.
@@ -133,7 +147,7 @@ namespace Templates.MSBuild
 
                     var taskItem = new TaskItem(outputPath);
                     taskItem.SetMetadata("AutoGen", "true");
-                    taskItem.SetMetadata("DependentUpon", "fileName");
+                    taskItem.SetMetadata("DependentUpon", fileName);
 
                     _generatedFiles.Add(taskItem);
                 }
