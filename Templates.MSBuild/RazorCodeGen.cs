@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Razor.Language;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -84,8 +85,36 @@ namespace Templates.MSBuild
 
                     try
                     {
+                        var _projectEngine = RazorProjectEngine.Create(
+                            RazorConfiguration.Default,
+                            RazorProjectFileSystem.Create(@"."),
+                            (builder) =>
+                            {
+                                //builder.ConfigureClass((c, n) =>
+                                //{
+                                //    c.SetCodeGenerationOptions(RazorCodeGenerationOptions.Create(o =>
+                                //    {
+                                //        o.SuppressMetadataAttributes = true;
+                                //        o.SuppressChecksum = true;
+                                //    }));
+                                //    n.BaseType = "RazorEngineCore.RazorEngineTemplateBase";
+                                //});
+                                builder.SetBaseType("RazorEngineCore.RazorEngineTemplateBase");
+                                builder.SetNamespace("TemplateNamespace");
+                                builder.Features.Add(new SuppressChecksumOptionsFeature());
+                            });
+
+                        // TODO: when reading the file, need to change "stringBuilder.AppendLine($"@inherits {options.Inherits}");" at the top, otherwise the type is wrong?
+                        RazorSourceDocument document = RazorSourceDocument.Create(File.ReadAllText(filePath), filePath);
+                        RazorCodeDocument codeDocument2 = _projectEngine.Process(
+                            document,
+                            "mvc",
+                            null,
+                            null);
+                        var cSharpDocument2 = codeDocument2.GetCSharpDocument();
+
                         //var result = host.GenerateCode();
-                        var result = "// this is a test for " + filePath;
+                        var result = cSharpDocument2.GeneratedCode;
                         if (!hasErrors)
                         {
                             // If we had errors when generating the output, don't write the file.
@@ -179,6 +208,17 @@ namespace Templates.MSBuild
             {
                 Directory.CreateDirectory(directory);
             }
+        }
+    }
+
+    internal class SuppressChecksumOptionsFeature : RazorEngineFeatureBase, IConfigureRazorCodeGenerationOptionsFeature
+    {
+        public int Order { get; }
+
+        public void Configure(RazorCodeGenerationOptionsBuilder options)
+        {
+            options.SuppressChecksum = true;
+            options.SuppressMetadataAttributes = true;
         }
     }
 }

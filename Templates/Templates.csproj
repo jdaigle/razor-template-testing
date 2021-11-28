@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
-        <RazorCodeGeneratorMSBuildPath>$(MSBuildThisFileDirectory)\..\Templates.MSBuild\bin\Debug\netstandard2.0\Templates.MSBuild.dll</RazorCodeGeneratorMSBuildPath>
+        <TargetFramework>net5.0</TargetFramework>
+        <RazorCodeGeneratorMSBuildPath>$(MSBuildThisFileDirectory)\..\Templates.MSBuild\bin\Debug\netstandard2.0\publish\Templates.MSBuild.dll</RazorCodeGeneratorMSBuildPath>
     </PropertyGroup>
 
     <Target Name="DeleteCodeGen" BeforeTargets="BeforeClean">
@@ -17,10 +17,6 @@
     <ItemGroup>
         <PackageReference Include="RazorEngineCore" Version="2021.7.1" />
         <!--<PackageReference Include="Templates.MSBuild" Version="1.0.0" />-->
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\Templates.MSBuild\Templates.MSBuild.csproj" />
     </ItemGroup>
 
     <Import Project="..\Templates.MSBuild\Templates.MSBuild.targets" />
