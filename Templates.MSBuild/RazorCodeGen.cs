@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Razor.Language;
+using Microsoft.AspNetCore.Razor.Language.Intermediate;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -88,7 +89,7 @@ namespace Templates.MSBuild
                     {
                         var _projectEngine = RazorProjectEngine.Create(
                             RazorConfiguration.Default,
-                            RazorProjectFileSystem.Create(@"."),
+                            RazorProjectFileSystem.Create(ProjectRoot),
                             (builder) =>
                             {
                                 //builder.ConfigureClass((c, n) =>
@@ -104,10 +105,11 @@ namespace Templates.MSBuild
                                 {
                                     node.ClassName = fileNameWithoutExtension;
                                 });
-                                builder.SetNamespace("TemplateNamespace");
+                                //builder.SetNamespace("TemplateNamespace");
+                                builder.SetRootNamespace("Templates");
                                 builder.Features.Add(new SuppressChecksumOptionsFeature());
+                               // builder.Features.Add(new SetNamespacePass(Log));
                             });
-
                         // TODO: when reading the file, need to change "stringBuilder.AppendLine($"@inherits {options.Inherits}");" at the top, otherwise the type is wrong?
                         //RazorSourceDocument document = RazorSourceDocument.Create(File.ReadAllText(filePath), filePath);
                         //RazorCodeDocument codeDocument2 = _projectEngine.Process(
@@ -117,13 +119,17 @@ namespace Templates.MSBuild
                         //    null);
                         //var cSharpDocument2 = codeDocument2.GetCSharpDocument();
 
-                        RazorSourceDocument document = RazorSourceDocument.Create(File.ReadAllText(filePath), filePath);
+                        var properties = new RazorSourceDocumentProperties(filePath: filePath, relativePath: "/" + fileName);
+                        RazorSourceDocument document = RazorSourceDocument.Create(File.ReadAllText(filePath), properties);
 
                         RazorCodeDocument codeDocument = _projectEngine.Process(
                             document,
-                            null,
+                            "component",
                             new List<RazorSourceDocument>(),
                             new List<TagHelperDescriptor>());
+
+                        var razorProjectItem = _projectEngine.FileSystem.GetItem(filePath, null);
+                        codeDocument = _projectEngine.Process(razorProjectItem);
 
                         RazorCSharpDocument razorCSharpDocument = codeDocument.GetCSharpDocument();
 
@@ -233,6 +239,32 @@ namespace Templates.MSBuild
         {
             options.SuppressChecksum = true;
             options.SuppressMetadataAttributes = true;
+        }
+    }
+
+    internal class SetNamespacePass : DocumentClassifierPassBase
+    {
+        private TaskLoggingHelper Log;
+
+        public SetNamespacePass(TaskLoggingHelper log)
+        {
+            Log = log;
+        }
+
+        protected override string DocumentKind { get; }
+
+        protected override bool IsMatch(RazorCodeDocument codeDocument, DocumentIntermediateNode documentNode) => true;
+
+        protected override void OnDocumentStructureCreated(RazorCodeDocument codeDocument, NamespaceDeclarationIntermediateNode @namespace, ClassDeclarationIntermediateNode @class, MethodDeclarationIntermediateNode method)
+        {
+            OnDocumentStructureCreated(codeDocument, @namespace, @class, method);
+            //Log.LogMessage(MessageImportance.Normal, "OnDocumentStructureCreated:");
+            //Log.LogMessage(MessageImportance.Normal, "@namespace.Content=" + @namespace.Content);
+            //if (codeDocument.TryComputeNamespace(fallbackToRootNamespace: true, out var ns))
+            //{
+            //    @namespace.Content = ns;
+            //    Log.LogMessage(MessageImportance.Normal, "TryComputeNamespace=" + ns);
+            //}
         }
     }
 }
