@@ -10,8 +10,8 @@ namespace Templates
     {
         public async Task Runner()
         {
-            var template = new TemplateNamespace.AnotherExample();
-            await template.ExecuteAsync();
+            //var template = new TemplateNamespace.AnotherExample();
+            //await template.ExecuteAsync();
         }
     }
 }
