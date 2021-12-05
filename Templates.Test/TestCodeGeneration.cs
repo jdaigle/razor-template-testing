@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Razor.Language;
 using Microsoft.AspNetCore.Razor.Language.Intermediate;
+using System.Reflection;
 
 namespace Templates.Test
 {
@@ -19,7 +20,7 @@ namespace Templates.Test
         {
             var ProjectRoot = @"C:\code\razor-template-testing\Templates";
 
-            var filePath = @"C:\code\razor-template-testing\Templates\AnotherExample.cshtml";
+            var filePath = @"C:\code\razor-template-testing\Templates\Example.cshtml";
             var fileName = Path.GetFileName(filePath);
             var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(filePath);
             var projectRelativePath = GetProjectRelativePath(filePath, ProjectRoot);
@@ -40,6 +41,7 @@ namespace Templates.Test
                                 //    }));
                                 //    n.BaseType = "RazorEngineCore.RazorEngineTemplateBase";
                                 //});
+                                //builder.Features.Add(new SetNamespacePass());
                                 builder.ConfigureClass((c, node) =>
                                 {
                                     node.ClassName = fileNameWithoutExtension;
@@ -47,7 +49,17 @@ namespace Templates.Test
                                 //builder.SetNamespace("TemplateNamespace");
                                 builder.SetRootNamespace("Templates");
                                 builder.Features.Add(new SuppressChecksumOptionsFeature());
-                                 builder.Features.Add(new SetNamespacePass());
+
+                                // Have to use Reflection since "DefaultDocumentClassifierPassFeature" isn't public and no useful extension method exists.
+                                var configurationFeature = builder.Features.FirstOrDefault(x => x.GetType().Name == "DefaultDocumentClassifierPassFeature");
+                                var configureNamespace = (IList<Action<RazorCodeDocument, NamespaceDeclarationIntermediateNode>>)configurationFeature.GetType().GetProperty("ConfigureNamespace").GetValue(configurationFeature);
+                                configureNamespace.Add((c, node) =>
+                                {
+                                    if (c.TryComputeNamespace(fallbackToRootNamespace: true, out var @namespace))
+                                    {
+                                        node.Content = @namespace;
+                                    }
+                                });
                             });
             // TODO: when reading the file, need to change "stringBuilder.AppendLine($"@inherits {options.Inherits}");" at the top, otherwise the type is wrong?
             //RazorSourceDocument document = RazorSourceDocument.Create(File.ReadAllText(filePath), filePath);
